@@ -59,7 +59,7 @@ def create_value(list, olist, size):
     return eval(''.join(string))
 '''
 
-def run_attempt(list, olist, usersize, cvalue):
+def run_attempt(nlist, olist, usersize, cvalue):
     # user input
     try:
         user = map(int, raw_input().split())
@@ -67,7 +67,7 @@ def run_attempt(list, olist, usersize, cvalue):
         # a non-integer input
         print (Fore.RED + "Please input the correct numbers provided only!"), Fore.RESET
         return False
-    if user.__len__() == list.__len__():
+    if user.__len__() == nlist.__len__():
         # determine user's value
         uservalue = create_value(user, olist, usersize, 1)
     else:
@@ -77,12 +77,13 @@ def run_attempt(list, olist, usersize, cvalue):
 
     # correct number of integer inputs
     # sort and compare number lists
-    list.sort()
+    temp = list(nlist)
+    temp.sort()
     user.sort()
-    if list == user:
+    if temp == user:
         if uservalue == cvalue:
             print "===========================\nWell done, that is correct!"
-            return True;
+            return True
         else:
             print (Fore.RED + "Incorrect, your order gives"), uservalue, Fore.RESET
     else:
@@ -96,11 +97,16 @@ def main():
     level_win = []
     end = False
     print "Welcome to order-pop! \n==========================="
+    print "The main objective is to re-order a set of numbers to a fixed set of operations and return the correct value."
     usermode = raw_input("Please enter your play mode i.e. Easy, Normal, Hard (E, N, H): ")
     if usermode != "E" and usermode != "N" and usermode != "H":
-        print (Fore.RED + "Please input E, N or H only!")
-        print "Reverting to default mode Normal", Fore.RESET
-        usermode = "N"
+        if usermode == "e" or usermode == "Easy": usermode = "E"
+        elif usermode == "n" or usermode == "Normal": usermode = "N"
+        elif usermode == "h" or usermode == "Hard": usermode = "H"
+        else:
+            print (Fore.RED + "Please input E, N or H only!")
+            print "Reverting to default mode Normal", Fore.RESET
+            usermode = "N"
 
     while not end:
         print "Level status:",(Fore.GREEN + ' '.join(map(str, level_win))),(Fore.BLUE + ' '.join(map(str, level_all))), Fore.RESET
@@ -108,7 +114,7 @@ def main():
         usersize = level_all[0]
         # variable initialisation
         win = False
-        attempts = 0
+        attempts_left = 5
         nums = create_list(usersize, usermode)
         ops = create_ops(usersize, usermode)
         shuff = list(nums)
@@ -122,20 +128,27 @@ def main():
 
         print "Here are a list of random numbers\n", (Fore.BLUE + ' '.join(map(str, nums))), Fore.RESET
         print "Here are a list of operations, in order\n", (Fore.BLUE + ' '.join(ops)), Fore.RESET
-        print "Please enter the numbers in correct order to give", (Fore.BLUE + str(value)), Fore.RESET
-        print "Note operation priority i.e. * before + or -\n",
+        print "Please rearrange the numbers, separated by spaces, in correct order to give", (Fore.BLUE + str(value)), Fore.RESET
+        x_list = "'"
+        for i in range(usersize - 1):
+            x_list += "X "
+        x_list += "X'"
+        print "e.g. enter", x_list
+        if usermode != "E" and usermode != "e":
+            print "Note operation priority i.e. * before + or -\n",
 
         # determine if user evaluates correct value
         while not win:
             # max of 10 attempts
-            if attempts >= 10:
-                print "Game over, correct order is ", ' '.join(map(str, shuff))
+            if attempts_left <= 0:
+                print "===========================\nGame over, correct order is ", ' '.join(map(str, shuff))
                 break
-            attempts += 1
-
-            if attempts == 8:
+            if attempts_left == 2:
                 print "Here's a hint (first section of the solution) ", ' '.join(map(str,shuff[:(len(shuff)/2)]))
             win = run_attempt(shuff, ops, usersize, value)
+            attempts_left -= 1
+            if attempts_left == 1: print str(attempts_left), "attempt remaining"
+            else: print str(attempts_left), "attempts remaining"
 
         if win:
             level_win.append(usersize)
@@ -145,9 +158,10 @@ def main():
                 end = True
         else: # not win
             status = raw_input("Would you like to continue? (Y/N) ")
-            if status != "Y" or status != "y":
+            if status != "Y" and status != "y" and status != "Yes":
                 print (Fore.BLUE + "Thank you for playing!")
                 end = True
+
 
 main()
 
