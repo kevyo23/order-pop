@@ -7,7 +7,7 @@ import shelve
 
 def main():
     print('WARNING: This is an insecure password manager. Use at own discretion.')
-    passwordShelf = shelve.open('configData')
+    passwordShelf = shelve.open('password-store')
     while True:
         if len(passwordShelf.keys()) == 0:
             print('No passwords currently in system.')
